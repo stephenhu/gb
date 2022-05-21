@@ -1,6 +1,7 @@
 package main
 
 import (
+	/*
 	"flag"
 	"io"
 	"log"
@@ -9,11 +10,14 @@ import (
 	"os"
 	"path"
 	"strings"
+*/
 
-	"github.com/PuerkitoBio/goquery"
+  "github.com/stephenhu/gb/cmd"
+	//"github.com/PuerkitoBio/goquery"
 
 )
 
+/*
 var links = map[string]bool{}
 
 var (
@@ -121,28 +125,6 @@ func getImages(search string) {
 } // getImages
 
 
-func getLinks(body io.Reader, search string) {
-
-	doc, err := goquery.NewDocumentFromReader(body)
-
-  if err != nil {
-    log.Println(err)
-  } else {
-
-    doc.Find("a").Each(func(index int, item *goquery.Selection) {
-
-      href, _ := item.Attr("href")
-
-			if strings.Contains(href, search) {
-				links[href] = true
-			}
-  
-    })
-
-	}
-	
-} // getUrls
-
 
 func main() {
 
@@ -156,15 +138,18 @@ func main() {
 		log.Fatal("Error: empty query string")
 	}
 
-	res, err := http.Get(*page)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer res.Body.Close()
 
 	getLinks(res.Body, *query)
+	log.Println(links)
 	getImages(*query)
+
+} // main
+
+*/
+
+func main() {
+
+	cmd.Execute()
 
 } // main
