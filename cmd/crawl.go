@@ -69,7 +69,7 @@ func init() {
 } // init
 
 
-func getDomain(s string) string {
+func getUrl(s string) *url.URL {
 
 	u, err := url.Parse(s)
 
@@ -78,13 +78,12 @@ func getDomain(s string) string {
 		panic(err)
 	}
 
-	log.Println(u)
-	return u.Host
+	return u
 
-} // getDomain
+} // getUrl
 
 
-func save() {
+func saveToFile() {
 
 	f, err := os.Create(fFile)
 
@@ -106,7 +105,7 @@ func save() {
 
 	}
 
-} // save
+} // saveToFile
 
 
 func crawl(location string) {
@@ -119,12 +118,11 @@ func crawl(location string) {
 
 	defer res.Body.Close()
 
-	parseTags(res.Body, getDomain(location), TAG_A, ATTR_HREF)
+	u := getUrl(location)
 
-	log.Println(links)
-	log.Println(depth)
+	parseTags(res.Body, u.Host, TAG_A, ATTR_HREF)
 
-	save()
+	saveToFile()
 
 } // crawl
 
@@ -141,10 +139,12 @@ func parseTags(body io.Reader, location string, tag string, attr string) {
 
       l, _ := item.Attr(attr)
 
+			u := getUrl(l)
+
 			if strings.Contains(l, fPattern) {
-				links[l] = true
+				links[u.Host + u.Path] = true
 			} else if strings.Contains(l, location) {
-				depth[l] = true
+				depth[u.Host + u.Path] = true
 			}
   
     })
