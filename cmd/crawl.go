@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -21,12 +22,19 @@ const (
 
 const (
 	ATTR_HREF               = "href"
+	ATTR_DATA_SRC           = "data-src"
 	ATTR_SRC                = "src"
 )
 
 
 const (
-  DEFAULT_FILE_NAME				= ".download"
+	DEFAULT_FILE_NAME				= ".chapters"
+)
+
+
+const (
+	CHAPTER                 = "-chapter-"
+	DASH                    = "-"
 	NEWLINE                 = "\n"
 )
 
@@ -46,7 +54,6 @@ var (
 		Short: "Crawler for a site",
 		Long: "Crawler iterates over a site for page links",
 		Args: cobra.ExactArgs(1),
-		ValidArgs: []string{"URL"},
 		Run: func(cmd *cobra.Command, args []string) {
 			crawl(args[0])
 		},
@@ -56,7 +63,6 @@ var (
 
 
 var links = map[string]bool{}
-var depth = map[string]bool{}
 
 
 func init() {
@@ -105,7 +111,34 @@ func saveToFile() {
 
 	}
 
-} // saveToFile
+} // saveToFile	
+
+
+func parseLinks(body io.Reader, page string) {
+
+	doc, err := goquery.NewDocumentFromReader(body)
+
+  if err != nil {
+		log.Println(err)
+  } else {
+
+		p := getUrl(page)
+
+    doc.Find(TAG_A).Each(func(index int, item *goquery.Selection) {
+
+      l, _ := item.Attr(ATTR_HREF)
+
+			u := getUrl(l)
+
+			if strings.Contains(l, fPattern) {
+				links[fmt.Sprintf("%s://%s%s", p.Scheme, p.Host, u.Path)] = true
+			}
+  
+    })
+
+	}
+	
+} // parseLinks
 
 
 func crawl(location string) {
@@ -118,37 +151,8 @@ func crawl(location string) {
 
 	defer res.Body.Close()
 
-	u := getUrl(location)
-
-	parseTags(res.Body, u.Host, TAG_A, ATTR_HREF)
+	parseLinks(res.Body, location)
 
 	saveToFile()
 
 } // crawl
-
-
-func parseTags(body io.Reader, location string, tag string, attr string) {
-
-	doc, err := goquery.NewDocumentFromReader(body)
-
-  if err != nil {
-    log.Println(err)
-  } else {
-
-    doc.Find(tag).Each(func(index int, item *goquery.Selection) {
-
-      l, _ := item.Attr(attr)
-
-			u := getUrl(l)
-
-			if strings.Contains(l, fPattern) {
-				links[u.Host + u.Path] = true
-			} else if strings.Contains(l, location) {
-				depth[u.Host + u.Path] = true
-			}
-  
-    })
-
-	}
-	
-} // parseTags

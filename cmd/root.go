@@ -25,6 +25,7 @@ func init() {
 	cobra.OnInitialize()
 
 	rootCmd.AddCommand(crawlCmd)
+	rootCmd.AddCommand(imageCmd)
 
 } // init
 
