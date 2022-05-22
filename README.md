@@ -19,7 +19,8 @@ since every site does things differently in terms of organizing content, this is
 ## Usage
 
 1. `gb crawl [URL] -p chapters # crawls URL for chapters, stores list in .chapters file`
-  1. by default all links are stored to `.chapters` in the current directory, this is a human readable file, you can make changes and remove entries
-  1. use the `-e` flag for URLs to exclude from crawling, this should be a comma delimited list
+   * by default all links are stored to `.chapters` in the current directory, this is a human readable file, you can make changes and remove entries
+   * to comment out a line, use the pound sign (#) as the first character before the URL
+   * use the `-e` flag for URLs to exclude from crawling, this should be a comma delimited list
 1. `gb image # crawls previously defined links for image files and downloads these`\
-  1. this actually creates directories based on the URL path
+   * this actually creates directories based on the URL path and stores images respectively
