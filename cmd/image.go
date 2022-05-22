@@ -99,7 +99,7 @@ func parseImages(page string) {
 	dir := createChapter(page)
 
 	log.Println("Created directory " + dir)
-	
+
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 
   if err != nil {
@@ -110,7 +110,7 @@ func parseImages(page string) {
 
       l, _ := item.Attr(ATTR_DATA_SRC)
 
-			log.Println("Downloading image " + l)
+			log.Println("Downloading " + l)
 
 			download(l, dir)
   
@@ -133,9 +133,8 @@ func readFileLinks() {
 
 	for _, l := range links {
 
-		log.Println(l[0])
-
-		if l[0] != COMMENT {
+		
+		if len(l) > 0 && l[0] != COMMENT {
 			
 			log.Println("Parsing " + l)
 			parseImages(l)
