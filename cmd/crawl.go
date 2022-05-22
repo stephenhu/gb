@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -34,6 +35,7 @@ const (
 
 const (
 	CHAPTER                 = "-chapter-"
+  COMMENT                 = '#'
 	DASH                    = "-"
 	NEWLINE                 = "\n"
 )
@@ -48,6 +50,7 @@ var (
 	
 	fPattern				string
 	fFile						string
+	fExclude        []string
 
 	crawlCmd = &cobra.Command{
 		Use: "crawl [URL]",
@@ -55,14 +58,18 @@ var (
 		Long: "Crawler iterates over a site for page links",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+
+			loadExcludedMap()
 			crawl(args[0])
+
 		},
 	}
 
 )
 
 
-var links = map[string]bool{}
+var links 		= map[string]bool{}
+var excluded	= map[string]bool{}
 
 
 func init() {
@@ -71,8 +78,19 @@ func init() {
 	  "URL search pattern")
 	crawlCmd.Flags().StringVarP(&fFile, "file", "f", DEFAULT_FILE_NAME,
     "Filename to save URLs")
+	crawlCmd.Flags().StringSliceVarP(&fExclude, "exclude", "e", []string{},
+    "exclude URLs")
 
 } // init
+
+
+func loadExcludedMap() {
+
+	for _, v := range fExclude {
+		excluded[v] = true
+	}
+
+} // loadExcludedMap
 
 
 func getUrl(s string) *url.URL {
@@ -89,6 +107,19 @@ func getUrl(s string) *url.URL {
 } // getUrl
 
 
+func exclude(l string) bool {
+
+	_, ok := excluded[l]
+
+	if ok {
+		return true
+	} else {
+		return false
+	}
+
+} // exclude
+
+
 func saveToFile() {
 
 	f, err := os.Create(fFile)
@@ -98,15 +129,31 @@ func saveToFile() {
 		panic(err)
 	}
 
-	for k, _ := range links {
+	sortedLinks := []string{}
 
-		_, err := f.WriteString(k + NEWLINE)
+	for l, _ := range links {
 
-		if err != nil {
-			
-			log.Println(err)
-			panic(err)
+		// TODO: optimize sort, right now it's O(N) * 2
 
+		sortedLinks = append(sortedLinks, l)
+		
+	}
+
+	sort.Strings(sortedLinks)
+
+	for _, v := range sortedLinks {
+
+		if !exclude(v) {
+
+			_, err := f.WriteString(strings.TrimSpace(v) + NEWLINE)
+
+			if err != nil {
+				
+				log.Println(err)
+				panic(err)
+	
+			}
+	
 		}
 
 	}
