@@ -2,11 +2,12 @@ package cmd
 
 import (
 	//"io"
-	//"io/ioutil"
+	//"io/ioutil
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
+	"strconv"
+	//"strings"
 
 	"github.com/signintech/gopdf"
 	"github.com/spf13/cobra"
@@ -43,34 +44,55 @@ func init() {
 } // init
 
 
-func createChapte2r(page string) string {
+func sortFiles(dir string) []string {
 
-	if len(page) == 0 {
-		panic(nil)
+	//var sorted []string
+
+	files, err := os.ReadDir(dir)
+
+	if err != nil {
+		
+		log.Println(err)
+		return nil
+
+	} else {
+
+		for _, f := range files {
+
+			n := filepath.Base(f.Name())
+
+			log.Println(n)
+		
+			i, err := strconv.Atoi(n)
+	
+			if err != nil {
+				
+				log.Println(err)
+				return nil
+	
+			} else {
+	
+				if i % 10 == 0 {
+	
+				}
+	
+				return nil
+	
+			}
+			
+		}
+
+		return nil
+
 	}
 
-	u := getUrl(page)
-
-	str := filepath.Base(u.Path)
-
-  title := strings.Split(str, CHAPTER)
-
-	dir := filepath.Join(title[0], title[len(title) - 1])
-
-	os.MkdirAll(dir, 0644)
-
-	return dir
-	
-} // createChapter
+} // sortFiles
 
 
 func generateBook(dir string) {
 
-	files, err := os.ReadDir(filepath.Join(fDir, dir))
-
-	if err != nil {
-		log.Println(err)
-	}
+	files := sortFiles(filepath.Join(fDir, dir))
+	
 
 	pdf := gopdf.GoPdf{}
 
@@ -80,14 +102,14 @@ func generateBook(dir string) {
 
 	for _, f := range files {
 
-		file := filepath.Join(fDir, f.Name())
+		file := filepath.Join(fDir, f)
 
-		if !f.IsDir() && filepath.Ext(file) == EXT_JPG {
-			log.Println(f.Name())
+		if filepath.Ext(file) == EXT_JPG {
+			log.Println(f)
 		}
 
 	}
-
+	
 } // generateBook
 
 
