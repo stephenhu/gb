@@ -25,7 +25,8 @@ func init() {
 	cobra.OnInitialize()
 
 	rootCmd.AddCommand(crawlCmd)
-	rootCmd.AddCommand(imageCmd)
+	rootCmd.AddCommand(downloadCmd)
+	rootCmd.AddCommand(generateCmd)
 
 } // init
 

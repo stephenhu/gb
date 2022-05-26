@@ -1,13 +1,14 @@
 # todo
 
 - [x] sort chapter list
-- [ ] better logging
+- [x] better logging
 - [ ] activity observability
 - [ ] parallel downloads
 - [ ] configuration
 - [ ] retry logic
-- [ ] exclusion list
-- [ ] skip commented lines
+- [x] exclusion list
+- [x] skip commented lines
 - [ ] elapsed time
 - [ ] downloaded bytes
 - [ ] add color
+- [ ] specify an output directory

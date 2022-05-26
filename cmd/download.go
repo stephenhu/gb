@@ -17,8 +17,8 @@ import (
 
 var (
 
-	imageCmd = &cobra.Command{
-		Use: "image",
+	downloadCmd = &cobra.Command{
+		Use: "download",
 		Short: "Download images",
 		Long: "Iterates over a page and finds all images for download.",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -30,11 +30,12 @@ var (
 
 
 var images = map[string]bool{}
+var counter int64
 
 
 func init() {
 
-	imageCmd.Flags().StringVarP(&fFile, "file", "f", DEFAULT_FILE_NAME,
+	downloadCmd.Flags().StringVarP(&fFile, "file", "f", DEFAULT_FILE_NAME,
     "Filename to read URLs")
 
 } // init
@@ -80,7 +81,15 @@ func download(location string, dir string) {
 	if err != nil {
 		log.Println(err)
 	} else {
-		io.Copy(f, res.Body)
+
+		b, err := io.Copy(f, res.Body)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		counter = counter + b
+
 	}
 
 } // download
@@ -121,7 +130,7 @@ func parseImages(page string) {
 } // parseImages
 
 
-func readFileLinks() {
+func crawlImages() {
 
 	buf, err := ioutil.ReadFile(fFile)
 
@@ -143,11 +152,6 @@ func readFileLinks() {
 
 	}
 
-} // readFileLinks
-
-
-func crawlImages() {
-
-	readFileLinks()
+	log.Printf("Total bytes downloaded: %d\n", counter)
 
 } // crawlImages

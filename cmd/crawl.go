@@ -29,7 +29,14 @@ const (
 
 
 const (
+	DEFAULT_DIR             = "."
 	DEFAULT_FILE_NAME				= ".chapters"
+	DEFAULT_PDF_NAME				= "book.pdf"
+)
+
+
+const (
+	EXT_JPG									= ".jpg"
 )
 
 
@@ -54,7 +61,7 @@ var (
 
 	crawlCmd = &cobra.Command{
 		Use: "crawl [URL]",
-		Short: "Crawler for a site",
+		Short: "Crawl site for content",
 		Long: "Crawler iterates over a site for page links",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
