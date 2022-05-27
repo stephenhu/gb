@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -8,7 +9,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/PuerkitoBio/goquery"
 
@@ -30,7 +33,12 @@ var (
 
 
 var images = map[string]bool{}
-var counter int64
+
+var (
+	counter 				int64
+  pages           int64
+)
+
 
 
 func init() {
@@ -90,6 +98,8 @@ func download(location string, dir string) {
 
 		counter = counter + b
 
+		pages = pages + 1
+
 	}
 
 } // download
@@ -107,7 +117,7 @@ func parseImages(page string) {
 
 	dir := createChapter(page)
 
-	log.Println("Created directory " + dir)
+	color.Green("Directory created: " + dir)
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 
@@ -119,7 +129,7 @@ func parseImages(page string) {
 
       l, _ := item.Attr(ATTR_DATA_SRC)
 
-			log.Println("Downloading " + l)
+			color.Green("Downloading: " + l)
 
 			download(l, dir)
   
@@ -140,18 +150,23 @@ func crawlImages() {
 
 	links := strings.Split(string(buf), NEWLINE)
 
+	start := time.Now()
+
 	for _, l := range links {
 
 		
 		if len(l) > 0 && l[0] != COMMENT {
 			
-			log.Println("Parsing " + l)
+			color.Blue("Parsing " + l)
 			parseImages(l)
 
 		}
 
 	}
 
-	log.Printf("Total bytes downloaded: %d\n", counter)
+	color.Blue("\nDownload summary:")
+	color.Blue("\tTotal bytes: %d\n", counter)
+	color.Blue("\tTotal pages: %d\n", pages)
+  color.Blue(fmt.Sprintf("\tDuration (ns): %d", time.Since(start)))
 
 } // crawlImages
