@@ -13,6 +13,7 @@ import (
 
 	_ "image/jpeg"
 
+	//"github.com/disintegration/imaging"
 	"github.com/signintech/gopdf"
 	"github.com/spf13/cobra"
 
@@ -21,15 +22,17 @@ import (
 
 var (
 
+	fPdfFile      string
 	fDir 					string
 	fSubDir       bool
 
 	generateCmd = &cobra.Command{
-		Use: "generate",
+		Use: "generate [DIR]",
 		Short: "Generate pdf from images",
 		Long: "Creates pdf with multiple jpg images.",
+		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			generatePdf()
+			generatePdf(args[0])
 		},
 	}
 
@@ -38,9 +41,7 @@ var (
 
 func init() {
 
-	generateCmd.Flags().StringVarP(&fFile, "file", "f", DEFAULT_PDF_NAME,
-    "Filename for pdf file")
-	generateCmd.Flags().StringVarP(&fDir, "dir", "d", DEFAULT_DIR,
+	generateCmd.Flags().StringVarP(&fPdfFile, "file", "f", DEFAULT_PDF_NAME,
     "Filename for pdf file")
 	generateCmd.Flags().BoolVarP(&fSubDir, "subdir", "s", false,
 	  "Recurse over sub-directories")
@@ -85,31 +86,6 @@ func sortFiles(dir string) []string {
 
 		}
 
-/*
-		for _, f := range files {
-
-			n := strings.Replace(filepath.Base(f.Name()), filepath.Ext(f.Name()), "", 1)
-
-			log.Println(n)
-		
-			i, err := strconv.Atoi(n)
-	
-			if err != nil {
-				
-				log.Println(err)
-				return nil
-	
-			} else {
-	
-				if i % 10 == 0 {
-					
-				}
-	
-			}
-			
-		}
-*/
-
 		return sorted
 
 	}
@@ -129,8 +105,9 @@ func generateBook(dir string) {
 
 	for _, f := range files {
 
-		file := filepath.Join(fDir, f)
+		file := filepath.Join(dir, f)
 
+		log.Println(file)
 		if filepath.Ext(file) == EXT_JPG {
 			
 			pdf.AddPage()
@@ -141,16 +118,53 @@ func generateBook(dir string) {
 				log.Println(err)
 			} else {
 
-				x, _, err := image.Decode(fn)
+				img, _, err := image.Decode(fn)
 
 				if err != nil {
 					log.Println(err)
 				} else {
-					
-					bounds := x.Bounds()
 
-					pdf.Image(file, 0, 0, &gopdf.Rect{W: float64(bounds.Max.X/2), H: float64(bounds.Max.Y/2)})
+					ih, err := gopdf.ImageHolderByReader(fn)
 
+					if err != nil {
+						log.Println(err)
+					} else {
+						
+						bounds := img.Bounds()
+	
+						if bounds.Max.X > bounds.Max.Y {
+	
+							err := pdf.ImageByHolderWithOptions(ih, gopdf.ImageOptions{
+								DegreeAngle: 90,
+								X: float64(bounds.Max.X),
+								Y: float64(bounds.Max.Y),
+								Rect: &gopdf.Rect{W: float64(bounds.Max.X), H: float64(bounds.Max.Y)},
+							})
+		
+							if err != nil {
+								log.Println(err)
+							}
+	
+						} else {
+	
+							err := pdf.ImageByHolderWithOptions(ih, gopdf.ImageOptions{
+								X: float64(bounds.Max.X),
+								Y: float64(bounds.Max.Y),
+								Rect: &gopdf.Rect{W: float64(bounds.Max.X), H: float64(bounds.Max.Y)},
+							})
+		
+							if err != nil {
+								log.Println(err)
+							}
+	
+						}
+	
+						//pdf.Image(file, 0, 0, &gopdf.Rect{W: float64(bounds.Max.X),
+							//H: float64(bounds.Max.Y)})
+						
+	
+					}
+	
 				}
 	
 			}
@@ -162,20 +176,23 @@ func generateBook(dir string) {
 
 	}
 
-	pdf.WritePdf(fFile)
+	pdf.WritePdf(fPdfFile)
 	
 } // generateBook
 
 
-func generatePdf() {
+func generatePdf(dir string) {
 
-	_, err := os.Stat(fDir)
+	if len(dir) == 0 {
+		log.Fatal(ERR_EMPTY_DIR)
+	}
+	_, err := os.Stat(dir)
 
 	if err != nil || os.IsNotExist(err) {
 		log.Fatal(err)
 	} else {
 
-		files, err := os.ReadDir(fDir)
+		files, err := os.ReadDir(dir)
 
 		if err != nil {
 			log.Fatal(err)
@@ -186,20 +203,14 @@ func generatePdf() {
 				for _, file := range files {
 				
 					if fSubDir && file.IsDir() {
-						generateBook(file.Name())
+						generateBook(filepath.Join(dir, file.Name()))
 					}
 
 				}
 	
 			} else {
-				generateBook(fDir)
+				generateBook(dir)
 			}
-
-/*				buf, err := ioutil.ReadFile(file.Name())
-
-				if err != nil {
-					log.Println(err)
-				}*/
 
 		}
 

@@ -49,7 +49,8 @@ const (
 
 
 const (
-	ERR_EMPTY_URL						= "Must provide a URL"
+	ERR_EMPTY_URL						= "Error: Must provide a URL."
+	ERR_EMPTY_DIR           = "Error: Must provide a directory name."
 )
 
 
@@ -61,7 +62,7 @@ var (
 
 	crawlCmd = &cobra.Command{
 		Use: "crawl [URL]",
-		Short: "Crawl site for content",
+		Short: "Crawl site",
 		Long: "Crawler iterates over a site for page links",
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
