@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
 	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/cobra"
@@ -20,6 +21,7 @@ var (
 	fPdfFile      string
 	fDir 					string
 	fSubDir       bool
+	fOut          string
 
 	generateCmd = &cobra.Command{
 		Use: "generate [DIR]",
@@ -40,6 +42,8 @@ func init() {
     "Filename for pdf file")
 	generateCmd.Flags().BoolVarP(&fSubDir, "subdir", "s", false,
 	  "Recurse over sub-directories")
+	generateCmd.Flags().StringVarP(&fOut, "out", "o", DEFAULT_DIR,
+    "Filename for pdf file")
 
 } // init
 
@@ -48,7 +52,13 @@ func createBookName(dir string) string {
 
 	fs := strings.ReplaceAll(dir, FORWARD_SLASH, "")
 
-	return fmt.Sprintf("%s%s", strings.ReplaceAll(fs, BACKSLASH, ""), EXT_PDF)
+	name := fmt.Sprintf("%s%s", strings.ReplaceAll(fs, BACKSLASH, ""), EXT_PDF)
+
+	if len(fOut) != 0 {
+		return filepath.Join(fOut, name)
+	} else {
+		return name
+	}
 
 } // createBookName
 
@@ -110,7 +120,11 @@ func generateBook(dir string) {
 
 	imp, _ := api.Import("form:A4, pos: c, s:1.0", pdfcpu.POINTS)
 
-	api.ImportImagesFile(files, createBookName(dir), imp, nil)
+	name := createBookName(dir)
+
+	color.Green("Creating pdf: " + name)
+
+	api.ImportImagesFile(files, name, imp, nil)
 
 } // generateBook
 
