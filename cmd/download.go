@@ -157,7 +157,7 @@ func crawlImages() {
 		
 		if len(l) > 0 && l[0] != COMMENT {
 			
-			color.Blue("Parsing " + l)
+			color.Blue("Parsing: " + l)
 			parseImages(l)
 
 		}

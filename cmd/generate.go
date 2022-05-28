@@ -1,20 +1,15 @@
 package cmd
 
 import (
-	"image"
-	//"io"
-	//"io/ioutil
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
-	//"sort"
 	"strconv"
 	"strings"
 
-	_ "image/jpeg"
-
-	//"github.com/disintegration/imaging"
-	"github.com/signintech/gopdf"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/cobra"
 
 )
@@ -49,7 +44,16 @@ func init() {
 } // init
 
 
-func sortFiles(dir string) []string {
+func createBookName(dir string) string {
+
+	fs := strings.ReplaceAll(dir, FORWARD_SLASH, "")
+
+	return fmt.Sprintf("%s%s", strings.ReplaceAll(fs, BACKSLASH, ""), EXT_PDF)
+
+} // createBookName
+
+
+func sortFiles(dir string) []string { 
 
 	var sorted []string
 
@@ -66,20 +70,27 @@ func sortFiles(dir string) []string {
 
 			for _, f := range files {
 
-				n := strings.Replace(filepath.Base(f.Name()), filepath.Ext(f.Name()), "", 1)
+				file := filepath.Join(dir, f.Name())
 
-				c, err := strconv.Atoi(n)
+				if filepath.Ext(file) == EXT_JPG {
 
-				if err != nil {
-				
-					log.Println(err)
-					return nil
-		
-				} else {
+					n := strings.Replace(filepath.Base(f.Name()), filepath.Ext(f.Name()), "", 1)
 
-					if i == c {
-						sorted = append(sorted, f.Name())						
+					c, err := strconv.Atoi(n)
+
+					if err != nil {
+					
+						log.Println(err)
+						return nil
+			
+					} else {
+
+						if i == c {
+							sorted = append(sorted, file)						
+						}
+
 					}
+
 				}
 
 			}
@@ -97,87 +108,10 @@ func generateBook(dir string) {
 
 	files := sortFiles(dir)	
 
-	pdf := gopdf.GoPdf{}
+	imp, _ := api.Import("form:A4, pos: c, s:1.0", pdfcpu.POINTS)
 
-	pdf.Start(gopdf.Config{
-		PageSize: *gopdf.PageSizeA4,
-	})
+	api.ImportImagesFile(files, createBookName(dir), imp, nil)
 
-	for _, f := range files {
-
-		file := filepath.Join(dir, f)
-
-		log.Println(file)
-		if filepath.Ext(file) == EXT_JPG {
-			
-			pdf.AddPage()
-
-			fn, err := os.Open(file)
-
-			if err != nil {
-				log.Println(err)
-			} else {
-
-				img, _, err := image.Decode(fn)
-
-				if err != nil {
-					log.Println(err)
-				} else {
-
-					ih, err := gopdf.ImageHolderByReader(fn)
-
-					if err != nil {
-						log.Println(err)
-					} else {
-						
-						bounds := img.Bounds()
-	
-						if bounds.Max.X > bounds.Max.Y {
-	
-							err := pdf.ImageByHolderWithOptions(ih, gopdf.ImageOptions{
-								DegreeAngle: 90,
-								X: float64(bounds.Max.X),
-								Y: float64(bounds.Max.Y),
-								Rect: &gopdf.Rect{W: float64(bounds.Max.X), H: float64(bounds.Max.Y)},
-							})
-		
-							if err != nil {
-								log.Println(err)
-							}
-	
-						} else {
-	
-							err := pdf.ImageByHolderWithOptions(ih, gopdf.ImageOptions{
-								X: float64(bounds.Max.X),
-								Y: float64(bounds.Max.Y),
-								Rect: &gopdf.Rect{W: float64(bounds.Max.X), H: float64(bounds.Max.Y)},
-							})
-		
-							if err != nil {
-								log.Println(err)
-							}
-	
-						}
-	
-						//pdf.Image(file, 0, 0, &gopdf.Rect{W: float64(bounds.Max.X),
-							//H: float64(bounds.Max.Y)})
-						
-	
-					}
-	
-				}
-	
-			}
-
-			//pdf.Image(file, 0, 0, &gopdf.Rect{W: 572, H: 800})
-			//pdf.Image(file, 0, 0, nil)
-
-		}
-
-	}
-
-	pdf.WritePdf(fPdfFile)
-	
 } // generateBook
 
 

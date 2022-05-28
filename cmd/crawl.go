@@ -37,14 +37,21 @@ const (
 
 const (
 	EXT_JPG									= ".jpg"
+	EXT_PDF                 = ".pdf"
 )
 
 
 const (
+	BACKSLASH               = "\\"
 	CHAPTER                 = "-chapter-"
-  COMMENT                 = '#'
 	DASH                    = "-"
+	FORWARD_SLASH           = "/"
 	NEWLINE                 = "\n"
+)
+
+
+const (
+	COMMENT                 = '#'
 )
 
 
