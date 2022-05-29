@@ -167,6 +167,6 @@ func crawlImages() {
 	color.Blue("\nDownload summary:")
 	color.Blue("\tTotal bytes: %d\n", counter)
 	color.Blue("\tTotal pages: %d\n", pages)
-  color.Blue(fmt.Sprintf("\tDuration (ns): %d", time.Since(start)))
+  color.Blue(fmt.Sprintf("\tDuration: %.0fs", time.Since(start).Seconds()))
 
 } // crawlImages
