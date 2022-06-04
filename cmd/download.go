@@ -76,29 +76,31 @@ func download(location string, dir string) {
 
 	if err != nil {
 		log.Println(err)
-	}
-
-	defer res.Body.Close()
-
-	u := getUrl(location)
-
-	name := filepath.Base(u.Path)
-	
-	f, err := os.Create(filepath.Join(dir, name))	
-
-	if err != nil {
-		log.Println(err)
 	} else {
 
-		b, err := io.Copy(f, res.Body)
-
+		defer res.Body.Close()
+	
+		u := getUrl(location)
+	
+		name := filepath.Base(u.Path)
+		
+		f, err := os.Create(filepath.Join(dir, name))	
+	
 		if err != nil {
 			log.Println(err)
+		} else {
+	
+			b, err := io.Copy(f, res.Body)
+	
+			if err != nil {
+				log.Println(err)
+			}
+	
+			counter = counter + b
+	
+			pages = pages + 1
+	
 		}
-
-		counter = counter + b
-
-		pages = pages + 1
 
 	}
 
@@ -107,33 +109,37 @@ func download(location string, dir string) {
 
 func parseImages(page string) {
 
+	page = strings.Replace(page, CARRIAGE_RETURN, EMPTY_STR, -1)
+
 	res, err := http.Get(page)
 
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer res.Body.Close()
-
-	dir := createChapter(page)
-
-	color.Green("Directory created: " + dir)
-
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-
-  if err != nil {
 		log.Println(err)
-  } else {
+	} else {
 
-    doc.Find(TAG_IMG).Each(func(index int, item *goquery.Selection) {
+		defer res.Body.Close()
 
-      l, _ := item.Attr(ATTR_DATA_SRC)
-
-			color.Green("Downloading: " + l)
-
-			download(l, dir)
-  
-    })
+		dir := createChapter(page)
+	
+		color.Green("Directory created: " + dir)
+	
+		doc, err := goquery.NewDocumentFromReader(res.Body)
+	
+		if err != nil {
+			log.Println(err)
+		} else {
+	
+			doc.Find(TAG_IMG).Each(func(index int, item *goquery.Selection) {
+	
+				l, _ := item.Attr(ATTR_DATA_SRC)
+	
+				color.Green("Downloading: " + l)
+	
+				download(l, dir)
+		
+			})
+	
+		}
 
 	}
 
@@ -153,7 +159,6 @@ func crawlImages() {
 	start := time.Now()
 
 	for _, l := range links {
-
 		
 		if len(l) > 0 && l[0] != COMMENT {
 			

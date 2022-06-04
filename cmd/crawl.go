@@ -29,6 +29,18 @@ const (
 
 
 const (
+	METHOD_GET							= "get"
+)
+
+
+const (
+	USER_AGENT              = "User-Agent"
+	MOZILLA_AGENT           = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36"
+	POSTMAN_AGENT           = "PostmanRuntime/7.28.4"
+)
+
+
+const (
 	DEFAULT_DIR             = "."
 	DEFAULT_FILE_NAME				= ".chapters"
 	DEFAULT_PDF_NAME				= "book.pdf"
@@ -43,8 +55,10 @@ const (
 
 const (
 	BACKSLASH               = "\\"
+	CARRIAGE_RETURN         = "\r"
 	CHAPTER                 = "-chapter-"
 	DASH                    = "-"
+	EMPTY_STR               = ""
 	FORWARD_SLASH           = "/"
 	NEWLINE                 = "\n"
 )
