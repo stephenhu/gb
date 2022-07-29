@@ -27,6 +27,7 @@ func init() {
 	rootCmd.AddCommand(crawlCmd)
 	rootCmd.AddCommand(downloadCmd)
 	rootCmd.AddCommand(generateCmd)
+	rootCmd.AddCommand(fixCmd)
 
 } // init
 

@@ -201,9 +201,9 @@ func parseLinks(body io.Reader, page string) {
 		p := getUrl(page)
 
     doc.Find(TAG_A).Each(func(index int, item *goquery.Selection) {
-
+log.Println("got here")
       l, _ := item.Attr(ATTR_HREF)
-
+log.Println(l)
 			u := getUrl(l)
 
 			if strings.Contains(l, fPattern) {
@@ -221,6 +221,8 @@ func crawl(location string) {
 
 	res, err := http.Get(location)
 
+	log.Println(res)
+	
 	if err != nil {
 		log.Fatal(err)
 	}

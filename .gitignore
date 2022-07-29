@@ -2,3 +2,5 @@
 gb*
 .chapter*
 *.pdf
+.vscode
+.errors
